@@ -8,12 +8,12 @@
     "start": "npm run build && node dist/birdposting-tests.js",
     "dev": "ts-node --transpile-only birdposting-tests.ts",
     "test": "npm run build && node dist/birdposting-tests.js",
-    "manual": "npm run build && node -e \"require('./dist/birdposting-tests.js').testManualPosting()\"",
-    "llm": "npm run build && node -e \"require('./dist/birdposting-tests.js').testLLMAugmentation()\"",
-    "mixed": "npm run build && node -e \"require('./dist/birdposting-tests.js').testMixedEditing()\"",
-    "vague": "npm run build && node -e \"require('./dist/birdposting-tests.js').testVagueDraftCaption()\"",
-    "casual": "npm run build && node -e \"require('./dist/birdposting-tests.js').testCasualCaption()\"",
-    "sad": "npm run build && node -e \"require('./dist/birdposting-tests.js').testSadderCaption()\""
+    "manual": "npm run build && node -e \"require('./dist/birdposting-tests.js').testManualPosting().catch(e=>{console.error('❌ Error:', e.message); process.exit(1)})\"",
+    "llm": "npm run build && node -e \"require('./dist/birdposting-tests.js').testLLMAugmentation().catch(e=>{console.error('❌ Error:', e.message); process.exit(1)})\"",
+    "mixed": "npm run build && node -e \"require('./dist/birdposting-tests.js').testMixedEditing().catch(e=>{console.error('❌ Error:', e.message); process.exit(1)})\"",
+    "vague": "npm run build && node -e \"require('./dist/birdposting-tests.js').testVagueDraftCaption().catch(e=>{console.error('❌ Error:', e.message); process.exit(1)})\"",
+    "casual": "npm run build && node -e \"require('./dist/birdposting-tests.js').testCasualCaption().catch(e=>{console.error('❌ Error calling Gemini API:', e.message); process.exit(1)})\"",
+    "sad": "npm run build && node -e \"require('./dist/birdposting-tests.js').testSadderCaption().catch(e=>{console.error('❌ Error:', e.message); process.exit(1)})\""
   },
   "keywords": ["gemini", "ai", "birds", "posts", "demo", "typescript"],
   "author": "Student Demo",

@@ -163,12 +163,11 @@ export class BirdPosting {
                 } else if (!prevNonSpace) {
                     isSentenceStart = true;
                 } else {
-                    // Use Unicode property escapes to detect punctuation or symbol if available, otherwise fallback to common punctuation
-                    try {
-                        if (/[\p{P}\p{S}]/u.test(prevNonSpace) || /[.!?]/.test(prevNonSpace)) {
-                            isSentenceStart = true;
-                        }
-                    } catch (e) {
+                    // If previous non-space char is not alphanumeric, treat it as punctuation/symbol (covers emoji)
+                    if (!/[A-Za-z0-9]/.test(prevNonSpace)) {
+                        isSentenceStart = true;
+                    } else {
+                        // fallback: treat explicit punctuation as sentence boundary
                         if (/[.!?]/.test(prevNonSpace)) isSentenceStart = true;
                     }
                 }
@@ -210,6 +209,7 @@ export class BirdPosting {
 
         Notes:
         - Do not add fictional details.
+        - Preserve the tone of the original caption. E.g if the original uses slang, preserve that
         - Prefer conversational, shareable phrasing that encourages interaction.
         `;
     }
