@@ -1,66 +1,19 @@
-# DayPlanner 
+# Hatch
 A simple day planner. This implementation focuses on the core concept of organizing activities for a single day with both manual and AI-assisted scheduling.
 
-## Concept: DayPlanner
+## Concept: Posting
 
-**Purpose**: Help you organize activities for a single day  
-**Principle**: You can add activities one at a time, assign them to times, and then observe the completed schedule
+Please see [posting.spec](posting.spec) for the original and AI-augmented specification.
 
-### Core State
-- **Activities**: Set of activities with title, duration, and optional startTime
-- **Assignments**: Set of activity-to-time assignments
-- **Time System**: All times in half-hour slots starting at midnight (0 = 12:00 AM, 13 = 6:30 AM)
+## UI Sketches + User Journey
 
-### Core Actions
-- `addActivity(title: string, duration: number): Activity`
-- `removeActivity(activity: Activity)`
-- `assignActivity(activity: Activity, startTime: number)`
-- `unassignActivity(activity: Activity)`
-- `requestAssignmentsFromLLM()` - AI-assisted scheduling with hardwired preferences
+![AI Birding Caption Help](ui_sketches.jpg)
 
-## Prerequisites
+Jamie has recently finished his birding session and is working on turning it into a post. On the post creation view, Jamie is able to view his trip photos displayed in a carousel view to serve as reference for caption-writing. Jamie begins typing a caption: "Saw some birds today, pretty cool". Upon reading through it believes his wording is not fluid and engaging enough. Seeking help, Jamie taps on the "Get AI Help" button beneath the caption box, which provides 3 alternative caption suggestions that focus on fluidity/grammar/phrasing/tone. 
 
-- **Node.js** (version 14 or higher)
-- **TypeScript** (will be installed automatically)
-- **Google Gemini API Key** (free at [Google AI Studio](https://makersuite.google.com/app/apikey))
+Jamie sifts through these suggestions and likes "Had a relaxing birdwatching session today — caught sight of some beautiful birds!" However, believing that it could benefit from more detail, he edits some more and settles for: "Enjoyed a peaceful morning at the wetlands spotting a Great Blue Heron!" With an improved caption in place, Jamie feels more confident that his post will encourage comments and interaction from friends. Feeling content, they go ahead and post their images and caption for others to see. Later, Jamie’s friends view the post and one comments: "Mornings are the best time to go birding! I love all the bird calls you get to hear." Jamie replies, "Agreed! I plan to go morning birding at a nearby open field next." Thanks to AI-assisted captioning, Jamie’s post provides clear context that encourages richer discussion among friends.
 
-## Quick Setup
-
-### 0. Clone the repo locally and navigate to it
-```cd intro-gemini-schedule```
-
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Add Your API Key
-
-**Why use a template?** The `config.json` file contains your private API key and should never be committed to version control. The template approach lets you:
-- Keep the template file in git (safe to share)
-- Create your own `config.json` locally (keeps your API key private)
-- Easily set up the project on any machine
-
-**Step 1:** Copy the template file:
-```bash
-cp config.json.template config.json
-```
-
-**Step 2:** Edit `config.json` and add your API key:
-```json
-{
-  "apiKey": "YOUR_GEMINI_API_KEY_HERE"
-}
-```
-
-**To get your API key:**
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Sign in with your Google account
-3. Click "Create API Key"
-4. Copy the key and paste it into `config.json` (replacing `YOUR_GEMINI_API_KEY_HERE`)
-
-### 3. Run the Application
+## How to Run the Application
 
 **Run all test cases:**
 ```bash
@@ -69,114 +22,66 @@ npm start
 
 **Run specific test cases:**
 ```bash
-npm run manual    # Manual scheduling only
-npm run llm       # LLM-assisted scheduling only
-npm run mixed     # Mixed manual + LLM scheduling
+npm run manual    # Manual caption writing only
+npm run llm       # LLM-assisted caption writing only
+npm run mixed     # Mixed manual + LLM caption writing
+npm run vague     # LLM-assisted caption writing based on a very vague caption
+npm run photoRef  # LLM-assisted caption writing based on a caption that references photos generically
 ```
 
-## File Structure
+## Rich Testing
 
-```
-dayplanner/
-├── package.json              # Dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
-├── config.json               # Your Gemini API key
-├── dayplanner-types.ts       # Core type definitions
-├── dayplanner.ts             # DayPlanner class implementation
-├── dayplanner-llm.ts         # LLM integration
-├── dayplanner-tests.ts       # Test cases and examples
-├── dist/                     # Compiled JavaScript output
-└── README.md                 # This file
-```
+### LLM Augmentation on Vague Captions
 
-## Test Cases
+Since this AI augmentation is limited to text input for cost reasons (reading the images of the post would be rather expensive), there could be a risk that AI would start making up details in an attempt to make a better caption. This may especially be the case if the original draft caption does not give much to build off of, which inspired this test case.
 
-The application includes three comprehensive test cases:
+To be honest, I did not expect there to be any bug reveals with this as my prompt includes a condition for AI to not fabricate any facts not listed already in the original caption. Indeed, this is the case. Rather, I just experimented with a worse prompt by removing the following:
 
-### 1. Manual Scheduling
-Demonstrates adding activities and manually assigning them to time slots:
+"
+- Do not add fictional details.
+- Preserve factual content from the user's draft (do not invent new facts)
+"
 
-```typescript
-const planner = new DayPlanner();
-const breakfast = planner.addActivity('Breakfast', 1); // 30 minutes
-planner.assignActivity(breakfast, 14); // 7:00 AM
-```
+Surprisingly, AI still did not contrive any new information and generated captions all the same (although of course they were also pretty generic). So, no real errors here.
 
-### 2. LLM-Assisted Scheduling
-Shows AI-powered scheduling with hardwired preferences:
+### LLM Augmentation on Multilingual Captions
 
-```typescript
-const planner = new DayPlanner();
-planner.addActivity('Morning Jog', 2);
-planner.addActivity('Math Homework', 4);
-await llm.requestAssignmentsFromLLM(planner);
-```
+This was inspired by the fact that casual, natural mannerisms are more difficult for AI to imitate, hence why AI text can often be detected. Indeed, my prompt in birdposting.ts has this issue. With this in mind, I decided to add an extra condition to the prompt: "Preserve the tone of the original caption."
 
-### 3. Mixed Scheduling
-Combines manual assignments with AI assistance for remaining activities.
+Input: lol the bird kept trying to steal my fries
+Output: Haha, this little guy had a hankering for my fries! Has any bird ever tried to snag your snacks?
 
-## Sample Output
+Even with the extra condition, AI was unable to accurately imitate the tone of the original caption. It was able to detect the original's lightheartedness, but its verbal expressions are much more formal and put together.
 
-```
-📅 Daily Schedule
-==================
-7:00 AM - Breakfast (30 min)
-8:00 AM - Morning Workout (1 hours)
-10:00 AM - Study Session (1.5 hours)
-1:00 PM - Lunch (30 min)
-3:00 PM - Team Meeting (1 hours)
-7:00 PM - Dinner (30 min)
-9:00 PM - Evening Reading (1 hours)
+### LLM Augmentation on Sad Captions
 
-📋 Unassigned Activities
-========================
-All activities are assigned!
-```
+It would be good to test that AI can handle different emotionally charged captions. Indeed, if I give a sad caption and use my prompt in birdposting.ts, AI will generally twist the caption to be happier. I tried adding an extra condition telling AI to:
 
-## Key Features
+- Maintain the mood (happy, sad, etc.) of the original caption
 
-- **Simple State Management**: Activities and assignments stored in memory
-- **Flexible Time System**: Half-hour slots from midnight (0-47)
-- **Query-Based Display**: Schedule generated on-demand, not stored sorted
-- **AI Integration**: Hardwired preferences in LLM prompt (no external hints)
-- **Conflict Detection**: Prevents overlapping activities
-- **Clean Architecture**: First principles implementation with no legacy code
+Input: Didn't get to see too many birds because of the cloudy weather today...
+Output: 
 
-## LLM Preferences (Hardwired)
+{
+  "suggestions": [
+    "Even with cloudy skies today, the birdwatching was a little quiet. Did anyone else have a slow day outdoors? ☁️🐦",
+    "Today's gloomy weather kept the bird sightings low, but the hunt continues! What's your go-to birding spot when the weather isn't cooperating?",
+    "A bit of a bird drought today thanks to the clouds! 🌧️ Anyone else find their birding adventures impacted by the weather? Share your stories!"
+  ]
+}
 
-The AI uses these built-in preferences:
-- Exercise activities: Morning (6:00 AM - 10:00 AM)
-- Study/Classes: Focused hours (9:00 AM - 5:00 PM)
-- Meals: Regular intervals (breakfast 7-9 AM, lunch 12-1 PM, dinner 6-8 PM)
-- Social/Relaxation: Evenings (6:00 PM - 10:00 PM)
-- Avoid: Demanding activities after 10:00 PM
+The first suggestion is the closest to the original tone of the caption, but the others do not -- in an attempt to make the content more engaging (call to action, asking a question), AI still adds an emotional switch towards happy/curious to the caption, which may not be the user's intent.
 
-## Troubleshooting
+## Validators
 
-### "Could not load config.json"
-- Ensure `config.json` exists with your API key
-- Check JSON format is correct
+A few things worth checking is if AI adheres to the conditions set in the prompt properly. These include:
 
-### "Error calling Gemini API"
-- Verify API key is correct
-- Check internet connection
-- Ensure API access is enabled in Google AI Studio
+1) the number of alternative captions provided
+2) not contriving any information not in the original caption
+3) providing suggestions that are indeed at most 2 sentences long (to meet the conciseness point)
 
-### Build Issues
-- Use `npm run build` to compile TypeScript
-- Check that all dependencies are installed with `npm install`
+The validation of all of these is handled by the validateSuggestions helper function that parseAndApplySuggestions will call on. #2 above is split into two parts: numbers and proper nouns.
 
-## Next Steps
+(Interestingly, AI fails quite often on #3!)
 
-Try extending the DayPlanner:
-- Add weekly scheduling
-- Implement activity categories
-- Add location information
-- Create a web interface
-- Add conflict resolution strategies
-- Implement recurring activities
 
-## Resources
-
-- [Google Generative AI Documentation](https://ai.google.dev/docs)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)

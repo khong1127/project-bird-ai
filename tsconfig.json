@@ -20,9 +20,9 @@
     "*.ts"
   ],
   "files": [
-    "dayplanner.ts",
+    "birdposting.ts",
     "gemini-llm.ts",
-    "dayplanner-tests.ts"
+    "birdposting-tests.ts"
   ],
   "exclude": [
     "node_modules",
