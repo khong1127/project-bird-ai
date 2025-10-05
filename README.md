@@ -25,11 +25,18 @@ npm start
 npm run manual    # Manual caption writing only
 npm run llm       # LLM-assisted caption writing only
 npm run mixed     # Mixed manual + LLM caption writing
-npm run vague     # LLM-assisted caption writing based on a very vague caption
-npm run photoRef  # LLM-assisted caption writing based on a caption that references photos generically
 ```
 
 ## Rich Testing
+
+These experiments have been retained in birdposting-tests.ts.
+
+**Run specific experiments:**
+```bash
+npm run vague     # LLM-assisted caption writing based on a very vague caption
+npm run casual    # LLM-assisted caption writing based on a caption of very casual/conversational tone
+npm run sad       # LLM-assisted caption writing based on a sadder caption
+```
 
 ### LLM Augmentation on Vague Captions
 
