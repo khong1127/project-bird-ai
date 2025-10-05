@@ -11,6 +11,7 @@ export interface Post {
     suggestions?: string[];
 }
 
+// This implementation does not focus on usability by multiple users since the main focus is just caption writing.
 export class BirdPosting {
     private posts: Post[] = [];
 
@@ -26,8 +27,10 @@ export class BirdPosting {
         if (idx === -1) return undefined;  // handles precondition
 
         this.posts[idx].caption = newCaption;
+
         // Clear suggestions after a manual edit (user applied or updated caption)
         this.posts[idx].suggestions = undefined;
+
         return this.posts[idx];
     }
 
@@ -35,11 +38,15 @@ export class BirdPosting {
     applySuggestion(post: Post, suggestionIndex: number): Post | undefined {
         const idx = this.posts.indexOf(post);
         if (idx === -1) return undefined;
+
         const suggestions = this.posts[idx].suggestions;
         if (!suggestions || suggestionIndex < 0 || suggestionIndex >= suggestions.length) return undefined;
+
         this.posts[idx].caption = suggestions[suggestionIndex];
+
         // Clear suggestions after applying one
         this.posts[idx].suggestions = undefined;
+
         return this.posts[idx];
     }
 
@@ -71,8 +78,7 @@ export class BirdPosting {
     }
 
     /**
-     * Parse raw LLM text for a JSON object and apply suggestion normalization to the post.
-     * This mirrors the DayPlanner pattern of extracting parsing/apply logic into a helper.
+     * Parse raw LLM text for a JSON object. This mirrors the DayPlanner pattern of extracting parsing/apply logic into a helper.
      */
     private parseAndApplySuggestions(text: string, post: Post): void {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -108,12 +114,12 @@ export class BirdPosting {
      * Throws an Error if any validation fails.
      */
     private validateSuggestions(suggestions: string[], draft: string): void {
-        // 1) Schema & uniqueness already enforced earlier: length == 3
+        // 2) Schema & uniqueness already enforced earlier: length == 3
         if (suggestions.length !== 3) {
             throw new Error('Validator: suggestions length is not 3');
         }
 
-        // 2) No hallucinated dates/numeric facts not in draft
+        // 3) No hallucinated dates/numeric facts not in draft
         const draftLower = draft.toLowerCase();
         const monthRegex = /\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\b/i;
         const yearRegex = /\b\d{4}\b/;
@@ -134,8 +140,7 @@ export class BirdPosting {
             }
         }
 
-        // 3) Heuristic for proper-noun hallucination: detect capitalized words not in draft
-        //    This flags likely invented entities (places, people) the model added.
+        // 4) Checks if AI may have invented entities (places, people) into its generated captions
         const draftWords = new Set(draft.split(/\W+/).map(w => w.toLowerCase()).filter(Boolean));
         const properNounRegex = /\b([A-Z][a-z]{2,})\b/g; // words starting with capital letter
         for (const s of suggestions) {
@@ -196,7 +201,7 @@ export class BirdPosting {
 
         The user has already written a caption draft. Using the draft as the primary input, produce 3 concise (MUST BE 1-2 sentences long), unique, alternative caption suggestions that:
         - Improve clarity and flow
-        - Increase engagement (use friendly hooks, invite comments, or include a light call-to-action)
+        - Increase engagement (e.g use friendly hooks, invite comments, or include a light call-to-action)
         - Preserve factual content from the user's draft (do not invent new facts)
 
         Return ONLY a JSON object with this shape:
@@ -209,7 +214,6 @@ export class BirdPosting {
 
         Notes:
         - Do not add fictional details.
-        - Preserve the tone of the original caption. E.g if the original uses slang, preserve that
         - Prefer conversational, shareable phrasing that encourages interaction.
         `;
     }

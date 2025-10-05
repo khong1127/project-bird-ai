@@ -35,12 +35,13 @@ Concept: Posting (User, Image)
 * purpose
     allow users to publish and share content for others to see, with optional AI support for generating captions to invoke more discussion
 * principle
-    users can create/publish posts that consist of a caption and at least one image. These posts can be edited and deleted by their owners. AI suggestions
-    for writing captions is provided and based on a user's caption draft.
+    users can create/publish posts that consist of a caption and at least one image. These posts can be edited and deleted by their owners. 
+    Optionally, AI can generate alternative captions from the user’s draft, helping them refine clarity, tone, or engagement. 
+    These suggestions are under user control in terms of whether they are accepted or not.
 * state
     a set of Posts with
         a caption String
-        a set of suggestions Strings
+        a set of suggestions Strings // note, this is more of a temporary field for when the post is being created or edited
         a set of Images
         an author User
 * actions
@@ -59,7 +60,7 @@ Concept: Posting (User, Image)
             post to exist
         effects
             edits the caption of the post to be that of the new one
-    async suggestionCaptionAI (llm: GeminiLLM, user_caption: String): (alternative_captions: List<String>)
+    async augmentPostWithLLM (llm: GeminiLLM, user_caption: String): (alternative_captions: List<String>)
         requires
             user_caption cannot be empty
         effects

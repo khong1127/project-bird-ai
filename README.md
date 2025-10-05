@@ -1,6 +1,6 @@
 # Hatch
 
-An app for birders to share their sightings with others in a simple and personable way. This implementation focuses on the concept of making posts, in particular writing the caption for the post.
+An app for birders to share their sightings with others in a simple and personable way. This implementation focuses on the concept of making posts, in particular writing the caption for the post, for which we will add an AI augmentation.
 
 ## Concept: Posting
 
@@ -10,9 +10,7 @@ Please see [birdposting.spec](birdposting.spec) for the original and AI-augmente
 
 ![AI Birding Caption Help](ui_sketches.jpeg)
 
-Jamie has recently finished his birding session and is working on turning it into a post. On the post creation view, Jamie is able to view his trip photos displayed in a carousel view to serve as reference for caption-writing. Jamie begins typing a caption: "Saw some birds today, pretty cool". Upon reading through it believes his wording is not fluid and engaging enough. Seeking help, Jamie taps on the "Get AI Help" button beneath the caption box, which provides 3 alternative caption suggestions that focus on fluidity/grammar/phrasing/tone. 
-
-Jamie sifts through these suggestions and likes "Had a relaxing birdwatching session today — caught sight of some beautiful birds!" He decides to click on the "Use" button next to that suggestion to quickly replace his draft caption with the suggested caption. However, believing that it could benefit from more detail, he edits some more and settles for: "Enjoyed a peaceful morning at the wetlands spotting a Great Blue Heron!" With an improved caption in place, Jamie feels more confident that his post will encourage comments and interaction from friends. Feeling content, they go ahead and post their images and caption for others to see. Later, Jamie’s friends view the post and one comments: "Mornings are the best time to go birding! I love all the bird calls you get to hear." Jamie replies, "Agreed! I plan to go morning birding at a nearby open field next." Thanks to AI-assisted captioning, Jamie’s post provides clear context that encourages richer discussion among friends.
+Jamie has recently finished his birding session and is creating a post. On the post creation screen, his photos appear in a carousel to guide caption writing. He starts with: *"Saw some birds today, pretty cool,"* but feels that it lacks clarity and engagement. Seeking help, Jamie taps on the "Get AI Help" button to receive 3 alternative caption suggestions that improve grammar, phrasing, and tone. He selects one -- *"Had a relaxing birdwatching session today — caught sight of some beautiful birds!"* -- then edits some more into: *"Enjoyed a peaceful morning at the wetlands spotting a Great Blue Heron!"* With AI assistance, Jamie moves from a vague draft to a polished caption that better reflects his experience and invites richer engagement from his friends.
 
 ## How to Run the Application
 
@@ -59,7 +57,7 @@ This was inspired by the fact that casual, natural mannerisms are more difficult
 * Input: lol the bird kept trying to steal my fries
 * Output: Haha, this little guy had a hankering for my fries! Has any bird ever tried to snag your snacks?
 
-Even with the extra condition, AI was unable to accurately imitate the tone of the original caption. It was able to detect the original's lightheartedness, but its verbal expressions are much more formal and put together.
+Even with the extra condition, AI was unable to accurately imitate the tone of the original caption. It was able to detect the original's lightheartedness, but its verbal expressions are much more formal and put together. Hence, no improvement, and tone preservation remains an issue.
 
 ### LLM Augmentation on Sad Captions
 
@@ -80,18 +78,19 @@ It would be good to test that AI can handle different emotionally charged captio
 }
 ```
 
-In an attempt to make the content more engaging (call to action, asking a question), AI still adds an emotional switch towards happy/curious to the caption, which may not be the user's intent.
+In an attempt to make the content more engaging (call to action, asking a question), AI still adds an emotional switch towards happy/curious to the caption, which may not be the user's intent. Hence, no improvements here.
 
 ## Validators
 
 A few things worth checking is if AI adheres to the conditions set in the prompt properly. These include:
 
-1) the number of alternative captions provided
-2) not contriving any information not in the original caption
-3) providing suggestions that are indeed at most 2 sentences long (to meet the conciseness point)
+1) the given suggestions are unique
+2) the number of alternative captions provided is 3
+3) not contriving any information not in the original caption
+4) providing suggestions that are indeed at most 2 sentences long (to meet the conciseness point)
 
-The validation of all of these is handled by the validateSuggestions helper function that parseAndApplySuggestions will call on. #2 above is split into two parts: numbers and proper nouns.
+The validation of these are handled by lines 97-101 (in parseAndApplySuggestions) and the validateSuggestions helper function that parseAndApplySuggestions will call on. #2 above is split into two parts: numbers and proper nouns.
 
-(Interestingly, AI fails quite often on #3!)
+(Interestingly, AI fails quite often on #4!)
 
 
